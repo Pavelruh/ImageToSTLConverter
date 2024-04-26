@@ -196,14 +196,14 @@ PImage addNoise(PImage INPUT, float mean, float variance){
   return OUTPUT;
 }
 
-PImage aliasing(PImage INPUT, int aliasingRadius){
+PImage smoothing(PImage INPUT, int smoothingRadius){
   INPUT.loadPixels();
   PImage OUTPUT = createImage(INPUT.width, INPUT.height, ARGB);
   
   // пробегаемся по всем пикселям по высоте и ширине
   for (int y = 0; y < INPUT.height; y++) {
     for (int x = 0; x < INPUT.width; x++) {
-      int len = 2*aliasingRadius + 1;
+      int len = 2*smoothingRadius + 1;
       
       // массив пикселей в квадрате вокруг нынешнего пикселя
       int[] colors = new int[len*len];
@@ -211,8 +211,8 @@ PImage aliasing(PImage INPUT, int aliasingRadius){
       int[] colorsCount = new int[len*len];
       
       // для каждого пикселя пробегаемся по пикселям соседям в радиусе
-      for (int ky = -aliasingRadius; ky <= aliasingRadius; ky++) {
-        for (int kx = -aliasingRadius; kx <= aliasingRadius; kx++) {
+      for (int ky = -smoothingRadius; ky <= smoothingRadius; ky++) {
+        for (int kx = -smoothingRadius; kx <= smoothingRadius; kx++) {
           int X = x+kx, Y = y+ky;
           
           // если вышли за рамки изображения, отзеркаливаем по краю(-1 -> 1, 452 -> 448)
@@ -226,7 +226,7 @@ PImage aliasing(PImage INPUT, int aliasingRadius){
           int col = INPUT.pixels[pos];
           
           // получаем часть изображения вокруг пикселя
-          colors[(ky+aliasingRadius)*len + (kx+aliasingRadius)] = col;
+          colors[(ky+smoothingRadius)*len + (kx+smoothingRadius)] = col;
         }
       }
       
@@ -254,11 +254,11 @@ PImage aliasing(PImage INPUT, int aliasingRadius){
       }
     
       // Если все цвета встречаются одинаково часто, возвращаем цвет из середины массива
-      if (allEqual) OUTPUT.pixels[(y * INPUT.width) + x] = colors[aliasingRadius];
+      if (allEqual) OUTPUT.pixels[(y * INPUT.width) + x] = colors[smoothingRadius];
       else OUTPUT.pixels[(y * INPUT.width) + x] = colors[maxIndex];
     }
   }
   OUTPUT.updatePixels();
-  println("aliasing done", aliasingRadius);
+  println("smoothing done", smoothingRadius);
   return OUTPUT;
 }

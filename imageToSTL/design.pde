@@ -10,15 +10,19 @@ float imgX1 = 0, imgY1 = 0;
 int Xframe1 = settingsWidth + offset, Yframe = 30;
 int Xframe2 = Xframe1 + frameWidth + 10;
 int border;
-boolean imgClicked = false, edges = false, blur = false, noise = false, aliasing = false;
-int isBlur = 0, isNoise = 0;
+boolean imgClicked = false, edges = false, blur = false, noise = false, smoothing = false;
+boolean quantized = false, saved = false;
+int blurOffset = 0, noiseOffset = 0;
 boolean changeFlag = true;
 int R, G, B;
 float bright = 0.0, contrst = 1.0;
-int blurWidth = 1, aliasingWidth = 1, mean = 0, variance = 10;
+int blurWidth = 1, smoothingWidth = 1, mean = 0, variance = 10;
 
 int colorNb = 8;
 int iterations = 50;
+
+float layerHeight = 0.4;
+float PPM = 10;
 
 void setup() {
   size(1280, 720);
@@ -74,7 +78,8 @@ void drawFrame1(){
   
   stroke(0);
   strokeWeight(4);
-  rect(-3, -3, frameWidth+4, frameHeight+4);
+  //rect(-4, -4, frameWidth+6, frameHeight+6);
+  //img2.copy(img1, -(int)imgX1, -(int)imgY1, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight); 
   popMatrix();
   img2 = get(Xframe1, Yframe, frameWidth, frameHeight);
 }
@@ -86,10 +91,10 @@ void drawFrame2(){
   
   pushMatrix();
   translate(Xframe2, Yframe);
-  rect(-3, -3, frameWidth+4, frameHeight+4);
-  // img2 = get(Xframe1, Yframe, frameWidth, frameHeight);
-  if(aliasing) {
-    // imgAl = aliasing(img3, aliasingWidth);
+  //rect(-3, -3, frameWidth+4, frameHeight+4);
+  //image(img2, 0, 0);
+  if(smoothing) {
+    // imgAl = smoothing(img3, smoothingWidth);
     image(imgAl, 0, 0);
   }
   else image(img3, 0, 0);

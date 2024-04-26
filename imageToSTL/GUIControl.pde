@@ -1,6 +1,5 @@
 void sliderSize(float value) {
   imgScale = value;
-  // changeFlag = true;
 }
 void sliderBrightness(float value){
   bright = value * 2.55;
@@ -28,8 +27,14 @@ void sliderColors(int value){
 void sliderIterations(int value){
   iterations = value;
 }
-void sliderAliasing(int value){
-  aliasingWidth = value;
+void sliderSmoothing(int value){
+  smoothingWidth = value;
+}
+void sliderPPM(int value){
+  PPM = value;
+}
+void sliderHeight(float value){
+  layerHeight = value;
 }
 
 void switchEdges(boolean value){
@@ -39,8 +44,8 @@ void switchEdges(boolean value){
 void switchBlur(boolean value){
   blur = !blur;
   sliderBlur.setVisible(blur);
-  if(blur) isBlur = 1;
-  else isBlur = 0;
+  if(blur) blurOffset = 1;
+  else blurOffset = 0;
   // Сдвинуть все кнопки при появлении слайдеров
   offsetControl();
   changeFlag = true;
@@ -49,31 +54,32 @@ void switchNoise(boolean value){
   noise = !noise;
   sliderMean.setVisible(noise);
   sliderVariance.setVisible(noise);
-  if(noise) isNoise = 1;
-  else isNoise = 0;
+  if(noise) noiseOffset = 1;
+  else noiseOffset = 0;
+  // Сдвинуть все кнопки при появлении слайдеров
   offsetControl();
   changeFlag = true;
 }
-void switchAliasing(boolean value){
-  aliasing = !aliasing;
+void switchSmoothing(boolean value){
+  smoothing = !smoothing;
   changeFlag = true;
-  sliderAliasing.setVisible(aliasing);
-  if(aliasing) buttonAliasing(true);
+  sliderSmoothing.setVisible(smoothing);
+  if(smoothing) buttonSmoothing(true);
   else {
-    aliasingWidth = 1;
-    sliderAliasing.setValue(1);
+    smoothingWidth = 1;
+    sliderSmoothing.setValue(1);
   }
 }
-void buttonAliasing(boolean value){
+void buttonSmoothing(boolean value){
   changeFlag = true;
-  imgAl = aliasing(img3, aliasingWidth);
+  imgAl = smoothing(img3, smoothingWidth);
 }
 
 void buttonReset(){
   bright = 0.0;
   contrst = 1.0;
   imgScale = frameHeight / (float)min(originalImg.height, originalImg.width);
-  aliasingWidth = 1;
+  smoothingWidth = 1;
   sliderBrightness.setValue(bright);
   sliderContrast.setValue(contrst);
   sliderSize.setValue(imgScale);
@@ -81,26 +87,31 @@ void buttonReset(){
   switchBlur.setValue(false);
   switchNoise.setValue(false);
   sliderBlur.setVisible(false);
-  sliderAliasing.setVisible(false).setValue(1);
+  sliderSmoothing.setVisible(false).setValue(1);
   sliderMean.setVisible(false).setValue(0);
   sliderVariance.setVisible(false).setValue(0);
   blur = false;
-  isBlur = 0;
+  blurOffset = 0;
   edges = false;
-  aliasing = false;
+  smoothing = false;
   noise = false;
-  isNoise = 0;
+  noiseOffset = 0;
   imgX1 = 0;
   imgY1 = 0;
   offsetControl();
   changeFlag = true;
+  quantized = false;
+  saved = false;
 }
 void buttonSave() {
-  // Обработка кнопки
-  // img1.save("Output.png");
   img2.save("Output.png");
   img3.save("Output_quantized.png");
-  if(aliasing) imgAl.save("Output_Aliasing.png");
+  if(smoothing) {
+    imgAl.save("Output_smoothing.png");
+    divideImage(imgAl);
+  }
+  else divideImage(img3);
+  saved = true;
   println("Files were saved");
 }
 void buttonLoad() {
@@ -108,7 +119,15 @@ void buttonLoad() {
 }
 void buttonQuantize(){
   img3 = kMeans(img2);
-  // changeFlag = true;
+  quantized = true;
+}
+void buttonConvert(){
+  if(quantized && saved){
+    for(int i = 0; i < colorNb; i++){
+      String name = "color_" + i;
+      createSTL(name, dividedImg[i]);
+    }
+  }
 }
 
 void fileSelected(File selection) {
@@ -120,21 +139,17 @@ void fileSelected(File selection) {
     originalImg = loadImage(imagePath);
     img1 = originalImg;
     buttonReset();
-    // imgScale = frameHeight / (float)min(originalImg.height, originalImg.width);
-    // buttonReset();
-    // imgX1 = 0;
-    // imgY1 = 0;
   }
 }
 void offsetControl(){
   // Сдвинуть все кнопки при появлении слайдеров
-  sliderMean.setPosition(20, (5 + isBlur + 2*isNoise)*offset);
-  sliderVariance.setPosition(20, (6 + isBlur + 2*isNoise)*offset);
-  sliderColors.setPosition(20, (7 + isBlur + 2*isNoise)*offset);
-  sliderIterations.setPosition(20, (8 + isBlur + 2*isNoise)*offset);
-  buttonQuantize.setPosition(20, (9 + isBlur + 2*isNoise)*offset);
-  buttonSave.setPosition(20, (10 + isBlur + 2*isNoise)*offset);
-  switchAliasing.setPosition(20, (11 + isBlur + 2*isNoise)*offset);
-  buttonAliasing.setPosition(100, (11 + isBlur + 2*isNoise)*offset);
-  sliderAliasing.setPosition(20, (13 + isBlur + 2*isNoise)*offset);
+  sliderMean.setPosition(20, (5 + blurOffset + 2*noiseOffset)*offset);
+  sliderVariance.setPosition(20, (6 + blurOffset + 2*noiseOffset)*offset);
+  sliderColors.setPosition(20, (7 + blurOffset + 2*noiseOffset)*offset);
+  sliderIterations.setPosition(20, (8 + blurOffset + 2*noiseOffset)*offset);
+  buttonQuantize.setPosition(20, (9 + blurOffset + 2*noiseOffset)*offset);
+  buttonSave.setPosition(20, (10 + blurOffset + 2*noiseOffset)*offset);
+  switchSmoothing.setPosition(20, (11 + blurOffset + 2*noiseOffset)*offset);
+  buttonSmoothing.setPosition(100, (11 + blurOffset + 2*noiseOffset)*offset);
+  sliderSmoothing.setPosition(20, (13 + blurOffset + 2*noiseOffset)*offset);
 }

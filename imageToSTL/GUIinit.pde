@@ -1,6 +1,6 @@
-Slider sliderSize, sliderBrightness, sliderContrast, sliderBlur, sliderMean, sliderVariance, sliderColors, sliderIterations, sliderAliasing;
-Button buttonLoad, buttonReset, buttonSave, buttonQuantize, buttonAliasing;
-Toggle switchEdges, switchBlur, switchNoise, switchAliasing;
+Slider sliderSize, sliderBrightness, sliderContrast, sliderBlur, sliderMean, sliderVariance, sliderColors, sliderIterations, sliderSmoothing, sliderPPM, sliderHeight;
+Button buttonLoad, buttonReset, buttonSave, buttonQuantize, buttonSmoothing, buttonConvert;
+Toggle switchEdges, switchBlur, switchNoise, switchSmoothing;
 
 void GUISet(){
   sliderSize.setValue(imgScale);
@@ -10,6 +10,8 @@ void GUISet(){
   sliderVariance.setValue(0);
   sliderColors.setValue(4);
   sliderIterations.setValue(50);
+  sliderPPM.setValue(10);
+  sliderHeight.setValue(0.4);
 }
 
 void GUIinit(){
@@ -129,12 +131,12 @@ void GUIinit(){
   
   sliderIterations = cp5.addSlider("sliderIterations")
     .setPosition(20, 8*offset)
-    .setRange(1, 100)
-    .setNumberOfTickMarks(100)
+    .setRange(1, 500)
+    //.setNumberOfTickMarks(100)
     .setValue(iterations)
     .setSize(200, 30)
     .setCaptionLabel("Iterations")
-    .showTickMarks(false)
+    //.showTickMarks(false)
     // .setDecimalPrecision(0);
     ;
   cp5.getController("sliderIterations").getCaptionLabel().setPaddingX(-90);
@@ -151,28 +153,56 @@ void GUIinit(){
     .setCaptionLabel("Save Result")
     ;
     
-  switchAliasing = cp5.addToggle("switchAliasing")
+  switchSmoothing = cp5.addToggle("switchSmoothing")
     .setPosition(20, 11*offset)
     .setSize(60, 30)
-    .setCaptionLabel("Aliasing")
+    .setCaptionLabel("Smoothing")
     .setMode(ControlP5.SWITCH)
     ;
     
-  buttonAliasing = cp5.addButton("buttonAliasing")
+  buttonSmoothing = cp5.addButton("buttonSmoothing")
     .setPosition(100, 11*offset)
-    .setSize(80, 30)
-    .setCaptionLabel("Aliasing")
+    .setSize(100, 30)
+    .setCaptionLabel("Smoothing")
     // .setMode(ControlP5.SWITCH)
     ;
     
-  sliderAliasing = cp5.addSlider("sliderAliasing")
+  sliderSmoothing = cp5.addSlider("sliderSmoothing")
     .setPosition(20, 13*offset-10)
     .setRange(1, 5)
-    .setValue(aliasingWidth)
+    .setValue(smoothingWidth)
     .setNumberOfTickMarks(5)
     .setSize(200, 30)
     .setVisible(false)
-    .setCaptionLabel("Aliasing Raduis")
+    .setCaptionLabel("Smoothing Raduis")
     ;
-  cp5.getController("sliderAliasing").getCaptionLabel().setPaddingX(-125);
+  cp5.getController("sliderSmoothing").getCaptionLabel().setPaddingX(-150);
+  
+  sliderPPM = cp5.addSlider("sliderPPM")
+    .setPosition(240, 14*offset)
+    .setRange(1, 50)
+    .setValue(PPM)
+    .setNumberOfTickMarks(50)
+    .showTickMarks(false)
+    .setSize(200, 30)
+    .setCaptionLabel("Pixels per mm")
+    //.setDecimalPrecision(0);
+    ;
+  cp5.getController("sliderPPM").getCaptionLabel().setPaddingX(-115);
+  
+  sliderHeight = cp5.addSlider("sliderHeight")
+    .setPosition(240, 15*offset)
+    .setRange(0.1, 2.0)
+    .setValue(layerHeight)
+    .setNumberOfTickMarks(20)
+    .setSize(200, 30)
+    .setCaptionLabel("Height(mm)")
+    ;
+  cp5.getController("sliderHeight").getCaptionLabel().setPaddingX(-90);
+  
+  buttonConvert = cp5.addButton("buttonConvert")
+    .setPosition(450, 14*offset)
+    .setSize(125, 70)
+    .setCaptionLabel("Convert to STL")
+    ;
 }

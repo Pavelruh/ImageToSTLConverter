@@ -4,6 +4,7 @@ float[] meanR, meanG, meanB;
 int[] clustersCount;
 int[] clustersR, clustersG, clustersB;
 float convergenceThreshold = 1.0;
+PImage[] dividedImg;
 
 int distance(color a, color b){
   int aR, aG, aB;
@@ -50,7 +51,20 @@ boolean checkConvergence(float threshold) {
   return converged;
 }
 
+void divideImage(PImage INPUT){
+  dividedImg = new PImage[colorNb];
+  for(int i = 0; i < colorNb; i++){
+    dividedImg[i] = createImage(INPUT.width, INPUT.height, ARGB);
+    for(int j = 0; j < INPUT.pixels.length; j++){
+      if(INPUT.pixels[j] == centroids[i]) dividedImg[i].pixels[j] = 0xFFFFFFFF;
+      else dividedImg[i].pixels[j] = 0xFF000000;
+    }
+    dividedImg[i].save("/divided images/Img_col_" + i + ".png");
+  }
+}
+
 PImage kMeans(PImage INPUT){
+  boolean converged = false;
   PImage OUTPUT = createImage(INPUT.width, INPUT.height, ARGB);
   centroids = new int[colorNb];
   centroidsNew = new int[colorNb];
@@ -83,7 +97,7 @@ PImage kMeans(PImage INPUT){
       }
     }
   }
-  boolean converged = false;
+  converged = false;
   for (int iter = 0; iter < iterations && !converged; iter++) {
     // Очищаем счетчики и суммы перед каждой итерацией
     for (int i = 0; i < colorNb; i++) {
@@ -140,6 +154,6 @@ PImage kMeans(PImage INPUT){
     else newCol = 0x00FFFFFF;
     OUTPUT.pixels[i] = newCol;
   }
-  println("Quantization done", colorNb, iterations);
+  println("Quantization done", colorNb, iterations, "Converged -", converged);
   return OUTPUT;
 }
